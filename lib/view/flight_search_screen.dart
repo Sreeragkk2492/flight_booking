@@ -236,17 +236,7 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
           
           SizedBox(height: 20.h),
           
-          Row(
-            children: [
-              Expanded(child: _buildDateSelector(true)),
-              SizedBox(width: 12.w),
-              GetBuilder<FlightController>(
-                builder: (ctrl) => ctrl.isRoundTrip.value
-                    ? Expanded(child: _buildDateSelector(false))
-                    : SizedBox.shrink(),
-              ),
-            ],
-          ),
+          _buildDateRow(),
           
           SizedBox(height: 20.h),
           
@@ -260,9 +250,23 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
     );
   }
 
+  Widget _buildDateRow() {
+    return Obx(() {
+      return Row(
+        children: [
+          Expanded(child: _buildDateSelector(true)),
+          if (controller.isRoundTrip.value) ...[
+            SizedBox(width: 12.w),
+            Expanded(child: _buildDateSelector(false)),
+          ],
+        ],
+      );
+    });
+  }
+
   Widget _buildTripTypeToggle() {
-    return GetBuilder<FlightController>(
-      builder: (ctrl) => Container(
+    return Obx(() {
+      return Container(
         padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
           color: Colors.grey[200],
@@ -274,7 +278,6 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
               child: GestureDetector(
                 onTap: () {
                   controller.isRoundTrip.value = true;
-                  controller.update();
                   HapticFeedback.lightImpact();
                 },
                 child: AnimatedContainer(
@@ -303,7 +306,6 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
               child: GestureDetector(
                 onTap: () {
                   controller.isRoundTrip.value = false;
-                  controller.update();
                   HapticFeedback.lightImpact();
                 },
                 child: AnimatedContainer(
@@ -330,13 +332,17 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildAirportSelector(bool isDeparture) {
-    return GetBuilder<FlightController>(
-      builder: (ctrl) => GestureDetector(
+    return Obx(() {
+      String selectedValue = isDeparture 
+          ? controller.selectedDeparture.value 
+          : controller.selectedArrival.value;
+      
+      return GestureDetector(
         onTap: () => _showAirportPicker(isDeparture),
         child: Container(
           padding: EdgeInsets.all(16.w),
@@ -357,19 +363,13 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
               ),
               SizedBox(height: 4.h),
               Text(
-                isDeparture 
-                    ? (controller.selectedDeparture.value.isEmpty 
-                        ? 'Select departure' 
-                        : controller.selectedDeparture.value)
-                    : (controller.selectedArrival.value.isEmpty 
-                        ? 'Select destination' 
-                        : controller.selectedArrival.value),
+                selectedValue.isEmpty 
+                    ? (isDeparture ? 'Select departure' : 'Select destination')
+                    : selectedValue,
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
-                  color: (isDeparture ? controller.selectedDeparture.value : controller.selectedArrival.value).isEmpty
-                      ? Colors.grey[400]
-                      : null,
+                  color: selectedValue.isEmpty ? Colors.grey[400] : null,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -377,13 +377,17 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildDateSelector(bool isDeparture) {
-    return GetBuilder<FlightController>(
-      builder: (ctrl) => GestureDetector(
+    return Obx(() {
+      DateTime selectedDate = isDeparture 
+          ? controller.departureDate.value 
+          : controller.returnDate.value;
+      
+      return GestureDetector(
         onTap: () => _selectDate(isDeparture),
         child: Container(
           padding: EdgeInsets.all(16.w),
@@ -404,9 +408,7 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
               ),
               SizedBox(height: 4.h),
               Text(
-                isDeparture
-                    ? '${controller.departureDate.value.day}/${controller.departureDate.value.month}/${controller.departureDate.value.year}'
-                    : '${controller.returnDate.value.day}/${controller.returnDate.value.month}/${controller.returnDate.value.year}',
+                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
@@ -415,13 +417,15 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildPassengerSelector() {
-    return GetBuilder<FlightController>(
-      builder: (ctrl) => GestureDetector(
+    return Obx(() {
+      int passengerCount = controller.passengers.value;
+      
+      return GestureDetector(
         onTap: _showPassengerPicker,
         child: Container(
           padding: EdgeInsets.all(16.w),
@@ -447,7 +451,7 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
                     ),
                     SizedBox(height: 4.h),
                     Text(
-                      '${controller.passengers.value} ${controller.passengers.value == 1 ? 'Passenger' : 'Passengers'}',
+                      '$passengerCount ${passengerCount == 1 ? 'Passenger' : 'Passengers'}',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
@@ -460,13 +464,15 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildSearchButton() {
-    return GetBuilder<FlightController>(
-      builder: (ctrl) => AnimatedBuilder(
+    return Obx(() {
+      bool isLoading = controller.isLoading.value;
+      
+      return AnimatedBuilder(
         animation: _searchButtonAnimation,
         builder: (context, child) => Transform.scale(
           scale: _searchButtonAnimation.value,
@@ -474,7 +480,7 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
             width: double.infinity,
             height: 50.h,
             child: ElevatedButton(
-              onPressed: controller.isLoading.value ? null : () {
+              onPressed: isLoading ? null : () {
                 _searchButtonController.forward().then((_) {
                   _searchButtonController.reverse();
                   controller.searchFlights();
@@ -491,7 +497,7 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
                 elevation: 8,
                 shadowColor: AppTheme.primaryYellow.withOpacity(0.5),
               ),
-              child: controller.isLoading.value
+              child: isLoading
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -530,13 +536,15 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildFilterSection() {
-    return GetBuilder<FlightController>(
-      builder: (ctrl) => controller.flights.isNotEmpty
+    return Obx(() {
+      List<Flight> flights = controller.flights;
+      
+      return flights.isNotEmpty
           ? SlideTransition(
               position: _filterSlideAnimation,
               child: Container(
@@ -544,7 +552,7 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
                 child: Row(
                   children: [
                     Text(
-                      '${controller.flights.length} flights found',
+                      '${flights.length} flights found',
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w600,
@@ -584,43 +592,44 @@ class _FlightSearchScreenState extends State<FlightSearchScreen>
                 ),
               ),
             )
-          : SizedBox.shrink(),
-    );
+          : SizedBox.shrink();
+    });
   }
 
   Widget _buildSearchResults() {
-    return GetBuilder<FlightController>(
-      builder: (ctrl) {
-        if (controller.isLoading.value) {
-          return _buildLoadingState();
-        }
-        
-        if (controller.flights.isEmpty) {
-          return _buildEmptyState();
-        }
-        
-        return FadeTransition(
-          opacity: _resultsAnimation,
-          child: AnimationLimiter(
-            child: Column(
-              children: [
-                for (int index = 0; index < controller.flights.length; index++)
-                  AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      verticalOffset: 50.0,
-                      child: FadeInAnimation(
-                        child: _buildFlightCard(controller.flights[index], index),
-                      ),
+    return Obx(() {
+      bool isLoading = controller.isLoading.value;
+      List<Flight> flights = controller.flights;
+      
+      if (isLoading) {
+        return _buildLoadingState();
+      }
+      
+      if (flights.isEmpty) {
+        return _buildEmptyState();
+      }
+      
+      return FadeTransition(
+        opacity: _resultsAnimation,
+        child: AnimationLimiter(
+          child: Column(
+            children: [
+              for (int index = 0; index < flights.length; index++)
+                AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: Duration(milliseconds: 375),
+                  child: SlideAnimation(
+                    verticalOffset: 50.0,
+                    child: FadeInAnimation(
+                      child: _buildFlightCard(flights[index], index),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 
   Widget _buildLoadingState() {

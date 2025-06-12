@@ -1,170 +1,3 @@
-// import 'package:flight_booking/controller/flight_controller.dart';
-// import 'package:flight_booking/theme/theme.dart';
-// import 'package:flight_booking/widget/flight_deal_carousel.dart';
-// import 'package:flight_booking/widget/quick_search_card.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_screenutil/flutter_screenutil.dart';
-// import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-// import 'package:get/get.dart';
-
-// class HomeScreen extends StatelessWidget {
-//   final FlightController controller = Get.put(FlightController());
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: SafeArea(
-//         child: AnimationLimiter(
-//           child: CustomScrollView(
-//             slivers: [
-//               _buildSliverAppBar(),
-//               SliverToBoxAdapter(
-//                 child: Padding(
-//                   padding: EdgeInsets.all(20.w),
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       _buildWelcomeSection(),
-//                       SizedBox(height: 24.h),
-//                       _buildQuickSearchCard(),
-//                       SizedBox(height: 32.h),
-//                       _buildSectionTitle('Flight Deals', 'View All'),
-//                       SizedBox(height: 16.h),
-//                       FlightDealsCarousel(),
-//                       SizedBox(height: 32.h),
-//                       _buildSectionTitle('Popular Destinations', ''),
-//                     ],
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildSliverAppBar() {
-//     return SliverAppBar(
-//       expandedHeight: 120.h,
-//       floating: true,
-//       pinned: false,
-//       backgroundColor: AppTheme.primaryYellow,
-//       flexibleSpace: FlexibleSpaceBar(
-//         background: Container(
-//           decoration: BoxDecoration(
-//             gradient: LinearGradient(
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
-//               colors: [
-//                 AppTheme.primaryYellow,
-//                 AppTheme.primaryYellow.withOpacity(0.8),
-//               ],
-//             ),
-//           ),
-//           child: Center(
-//             child: Text(
-//               'YellowJet',
-//               style: TextStyle(
-//                 fontSize: 32.sp,
-//                 fontWeight: FontWeight.bold,
-//                 color: AppTheme.darkBlue,
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//       actions: [
-//         IconButton(
-//           onPressed: () {},
-//           icon: Icon(
-//             Icons.notifications_outlined,
-//             color: AppTheme.darkBlue,
-//           ),
-//         ),
-//         IconButton(
-//           onPressed: () {},
-//           icon: Icon(
-//             Icons.account_circle_outlined,
-//             color: AppTheme.darkBlue,
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildWelcomeSection() {
-//     return AnimationConfiguration.staggeredList(
-//       position: 0,
-//       duration: Duration(milliseconds: 600),
-//       child: SlideAnimation(
-//         verticalOffset: 30.0,
-//         child: FadeInAnimation(
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 'Where to next?',
-//                 style: TextStyle(
-//                   fontSize: 24.sp,
-//                   fontWeight: FontWeight.bold,
-//                 ),
-//               ),
-//               SizedBox(height: 8.h),
-//               Text(
-//                 'Discover amazing destinations with AI-powered recommendations',
-//                 style: TextStyle(
-//                   fontSize: 14.sp,
-//                   color: Colors.grey[600],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildQuickSearchCard() {
-//     return AnimationConfiguration.staggeredList(
-//       position: 1,
-//       duration: Duration(milliseconds: 600),
-//       child: SlideAnimation(
-//         verticalOffset: 30.0,
-//         child: FadeInAnimation(
-//           child: QuickSearchCard(),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildSectionTitle(String title, String actionText) {
-//     return Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       children: [
-//         Text(
-//           title,
-//           style: TextStyle(
-//             fontSize: 20.sp,
-//             fontWeight: FontWeight.bold,
-//           ),
-//         ),
-//         if (actionText.isNotEmpty)
-//           TextButton(
-//             onPressed: () {},
-//             child: Text(
-//               actionText,
-//               style: TextStyle(
-//                 color: AppTheme.primaryYellow,
-//                 fontWeight: FontWeight.w600,
-//               ),
-//             ),
-//           ),
-//       ],
-//     );
-//   }
-// }
-
 import 'dart:math';
 
 import 'package:flight_booking/controller/flight_controller.dart';
@@ -188,9 +21,14 @@ class _HomeScreenState extends State<HomeScreen>
   final FlightController controller = Get.put(FlightController());
   late AnimationController _appBarAnimationController;
   late AnimationController _iconAnimationController;
+  late AnimationController _backgroundAnimationController;
+  late AnimationController _pulseAnimationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _rotationAnimation;
+  late Animation<double> _pulseAnimation;
+  late Animation<Color?> _colorAnimation;
   ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
 
@@ -200,26 +38,36 @@ class _HomeScreenState extends State<HomeScreen>
     
     // Initialize animation controllers
     _appBarAnimationController = AnimationController(
-      duration: Duration(milliseconds: 1200),
+      duration: Duration(milliseconds: 1500),
       vsync: this,
     );
     
     _iconAnimationController = AnimationController(
-      duration: Duration(milliseconds: 800),
+      duration: Duration(milliseconds: 2000),
       vsync: this,
     );
 
-    // Setup animations
+    _backgroundAnimationController = AnimationController(
+      duration: Duration(milliseconds: 4000),
+      vsync: this,
+    );
+
+    _pulseAnimationController = AnimationController(
+      duration: Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    // Setup enhanced animations
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _appBarAnimationController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeInOutCubic,
     ));
 
     _scaleAnimation = Tween<double>(
-      begin: 0.8,
+      begin: 0.5,
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _appBarAnimationController,
@@ -227,24 +75,59 @@ class _HomeScreenState extends State<HomeScreen>
     ));
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(0, -0.5),
+      begin: Offset(-1.0, -0.5),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _appBarAnimationController,
-      curve: Curves.easeOutCubic,
+      curve: Curves.easeOutBack,
     ));
 
-    // Start animations
+    _rotationAnimation = Tween<double>(
+      begin: 0.0,
+      end: 2 * pi,
+    ).animate(CurvedAnimation(
+      parent: _iconAnimationController,
+      curve: Curves.linear,
+    ));
+
+    _pulseAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.3,
+    ).animate(CurvedAnimation(
+      parent: _pulseAnimationController,
+      curve: Curves.easeInOut,
+    ));
+
+    _colorAnimation = ColorTween(
+      begin: AppTheme.primaryYellow,
+      end: AppTheme.primaryYellow.withOpacity(0.8),
+    ).animate(CurvedAnimation(
+      parent: _backgroundAnimationController,
+      curve: Curves.easeInOut,
+    ));
+
+    // Start animations with delays for cascade effect
     _appBarAnimationController.forward();
-    _iconAnimationController.repeat(reverse: true);
+    
+    Future.delayed(Duration(milliseconds: 300), () {
+      _iconAnimationController.repeat();
+    });
+    
+    Future.delayed(Duration(milliseconds: 500), () {
+      _backgroundAnimationController.repeat(reverse: true);
+    });
+    
+    Future.delayed(Duration(milliseconds: 800), () {
+      _pulseAnimationController.repeat(reverse: true);
+    });
 
     // Listen to scroll changes
     _scrollController.addListener(() {
-      if (_scrollController.offset > 50 && !_isScrolled) {
+      if (_scrollController.offset > 30 && !_isScrolled) {
         setState(() {
           _isScrolled = true;
         });
-      } else if (_scrollController.offset <= 50 && _isScrolled) {
+      } else if (_scrollController.offset <= 30 && _isScrolled) {
         setState(() {
           _isScrolled = false;
         });
@@ -256,6 +139,8 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     _appBarAnimationController.dispose();
     _iconAnimationController.dispose();
+    _backgroundAnimationController.dispose();
+    _pulseAnimationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -297,21 +182,25 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildEnhancedSliverAppBar() {
     return SliverAppBar.large(
-      expandedHeight: 180.h,
+      expandedHeight: 120.h, // Reduced from 180.h
       floating: true,
       pinned: true,
       snap: false,
       backgroundColor: _isScrolled 
           ? AppTheme.primaryYellow.withOpacity(0.95)
-          : AppTheme.primaryYellow,
-      elevation: _isScrolled ? 8 : 0,
-      shadowColor: AppTheme.darkBlue.withOpacity(0.2),
+          : Colors.transparent,
+      elevation: _isScrolled ? 12 : 0,
+      shadowColor: AppTheme.darkBlue.withOpacity(0.3),
       flexibleSpace: AnimatedBuilder(
-        animation: _appBarAnimationController,
+        animation: Listenable.merge([
+          _appBarAnimationController,
+          _backgroundAnimationController,
+          _colorAnimation,
+        ]),
         builder: (context, child) {
           return FlexibleSpaceBar(
             centerTitle: false,
-            titlePadding: EdgeInsets.only(left: 20.w, bottom: 20.h),
+            titlePadding: EdgeInsets.only(left: 20.w, bottom: 16.h), // Reduced bottom padding
             title: SlideTransition(
               position: _slideAnimation,
               child: FadeTransition(
@@ -322,35 +211,37 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             ),
-            background: Container(
+            background: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.primaryYellow,
+                    _colorAnimation.value ?? AppTheme.primaryYellow,
                     AppTheme.primaryYellow.withOpacity(0.9),
-                    AppTheme.primaryYellow.withOpacity(0.7),
+                    AppTheme.primaryYellow.withOpacity(0.6),
                   ],
-                  stops: [0.0, 0.6, 1.0],
+                  stops: [0.0, 0.5, 1.0],
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryYellow.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: Offset(0, 10),
+                  ),
+                ],
               ),
               child: Stack(
                 children: [
-                  // Animated background elements
+                  // Enhanced animated background elements
                   Positioned.fill(
-                    child: _buildAnimatedBackground(),
+                    child: _buildRichAnimatedBackground(),
                   ),
-                  // Welcome overlay
-                  // Positioned(
-                  //   bottom: 60.h,
-                  //   left: 20.w,
-                  //   right: 20.w,
-                  //   child: FadeTransition(
-                  //     opacity: _fadeAnimation,
-                  //     child: _buildWelcomeOverlay(),
-                  //   ),
-                  // ),
+                  // Floating particles effect
+                  Positioned.fill(
+                    child: _buildFloatingParticles(),
+                  ),
                 ],
               ),
             ),
@@ -358,66 +249,82 @@ class _HomeScreenState extends State<HomeScreen>
         },
       ),
       actions: [
-        AnimatedBuilder(
-          animation: _iconAnimationController,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: 1.0 + (_iconAnimationController.value * 0.1),
-              child: Container(
-                margin: EdgeInsets.only(right: 8.w),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12.r),
+        // Static notification button
+        Container(
+          margin: EdgeInsets.only(right: 8.w),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(16.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.white.withOpacity(0.3),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: IconButton(
+            onPressed: () {
+              HapticFeedback.lightImpact();
+            },
+            icon: Stack(
+              children: [
+                Icon(
+                  Icons.notifications_outlined,
+                  color: AppTheme.darkBlue,
+                  size: 24.sp,
                 ),
-                child: IconButton(
-                  onPressed: () {
-                    // Add haptic feedback
-                    HapticFeedback.lightImpact();
-                  },
-                  icon: Stack(
-                    children: [
-                      Icon(
-                        Icons.notifications_outlined,
-                        color: AppTheme.darkBlue,
-                        size: 24.sp,
+                // Static notification badge
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: EdgeInsets.all(3.w),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.red, Colors.redAccent],
                       ),
-                      // Notification badge
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(2.w),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6.r),
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 12.w,
-                            minHeight: 12.w,
-                          ),
-                          child: Text(
-                            '3',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 8.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                      borderRadius: BorderRadius.circular(8.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withOpacity(0.5),
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
                         ),
+                      ],
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: 14.w,
+                      minHeight: 14.w,
+                    ),
+                    child: Text(
+                      '3',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8.sp,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              ],
+            ),
+          ),
         ),
+        // Static profile button
         Container(
           margin: EdgeInsets.only(right: 16.w),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12.r),
+            color: Colors.white.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(16.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.white.withOpacity(0.3),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: IconButton(
             onPressed: () {
@@ -439,35 +346,60 @@ class _HomeScreenState extends State<HomeScreen>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'YellowJet',
-          style: TextStyle(
-            fontSize: 28.sp,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.darkBlue,
-            letterSpacing: -0.5,
-          ),
+        AnimatedBuilder(
+          animation: _iconAnimationController,
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(sin(_iconAnimationController.value * 2 * pi) * 2, 0),
+              child: Text(
+                'YellowJet',
+                style: TextStyle(
+                  fontSize: 22.sp, // Slightly smaller
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.darkBlue,
+                  letterSpacing: -0.5,
+                  shadows: [
+                    Shadow(
+                      color: Colors.white.withOpacity(0.5),
+                      offset: Offset(1, 1),
+                      blurRadius: 2,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
-        Text(
-          'Fly with confidence',
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: AppTheme.darkBlue.withOpacity(0.7),
-            fontWeight: FontWeight.w500,
-          ),
+        AnimatedBuilder(
+          animation: _pulseAnimationController,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: 1.0 + (_pulseAnimation.value - 1.0) * 0.1,
+              child: Text(
+                'Fly with confidence',
+                style: TextStyle(
+                  fontSize: 10.sp, // Slightly smaller
+                  color: AppTheme.darkBlue.withOpacity(0.8),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _buildAnimatedBackground() {
+  Widget _buildRichAnimatedBackground() {
     return AnimatedBuilder(
-      animation: _iconAnimationController,
+      animation: Listenable.merge([_iconAnimationController, _backgroundAnimationController]),
       builder: (context, child) {
         return CustomPaint(
-          painter: AnimatedBackgroundPainter(
+          painter: RichAnimatedBackgroundPainter(
             animationValue: _iconAnimationController.value,
-            color: Colors.white.withOpacity(0.1),
+            secondaryAnimationValue: _backgroundAnimationController.value,
+            color: Colors.white.withOpacity(0.15),
+            accentColor: Colors.white.withOpacity(0.25),
           ),
           child: Container(),
         );
@@ -475,85 +407,50 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildWelcomeOverlay() {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Icon(
-              Icons.flight_takeoff,
-              color: AppTheme.darkBlue,
-              size: 20.sp,
-            ),
+  Widget _buildFloatingParticles() {
+    return AnimatedBuilder(
+      animation: _backgroundAnimationController,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: FloatingParticlesPainter(
+            animationValue: _backgroundAnimationController.value,
+            particleColor: Colors.white.withOpacity(0.3),
           ),
-          SizedBox(width: 12.w),
-          // Expanded(
-          //   child: Column(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       Text(
-          //         'Ready for takeoff?',
-          //         style: TextStyle(
-          //           fontSize: 14.sp,
-          //           fontWeight: FontWeight.bold,
-          //           color: AppTheme.darkBlue,
-          //         ),
-          //       ),
-          //       Text(
-          //         'Book your next adventure',
-          //         style: TextStyle(
-          //           fontSize: 12.sp,
-          //           color: AppTheme.darkBlue.withOpacity(0.8),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-        ],
-      ),
+          child: Container(),
+        );
+      },
     );
   }
 
   Widget _buildWelcomeSection() {
     return AnimationConfiguration.staggeredList(
       position: 0,
-      duration: Duration(milliseconds: 600),
+      duration: Duration(milliseconds: 800),
       child: SlideAnimation(
-        verticalOffset: 30.0,
+        verticalOffset: 50.0,
         child: FadeInAnimation(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Where to next?',
-                style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
+          child: ScaleAnimation(
+            scale: 0.8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Where to next?',
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: 8.h),
-              Text(
-                'Discover amazing destinations with AI-powered recommendations',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: Colors.grey[600],
+                SizedBox(height: 8.h),
+                Text(
+                  'Discover amazing destinations with AI-powered recommendations',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: Colors.grey[600],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -563,11 +460,14 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildQuickSearchCard() {
     return AnimationConfiguration.staggeredList(
       position: 1,
-      duration: Duration(milliseconds: 600),
+      duration: Duration(milliseconds: 800),
       child: SlideAnimation(
-        verticalOffset: 30.0,
+        verticalOffset: 50.0,
         child: FadeInAnimation(
-          child: QuickSearchCard(),
+          child: ScaleAnimation(
+            scale: 0.8,
+            child: QuickSearchCard(),
+          ),
         ),
       ),
     );
@@ -602,14 +502,18 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
-// Custom painter for animated background elements
-class AnimatedBackgroundPainter extends CustomPainter {
+// Enhanced custom painter for richer animated background elements
+class RichAnimatedBackgroundPainter extends CustomPainter {
   final double animationValue;
+  final double secondaryAnimationValue;
   final Color color;
+  final Color accentColor;
 
-  AnimatedBackgroundPainter({
+  RichAnimatedBackgroundPainter({
     required this.animationValue,
+    required this.secondaryAnimationValue,
     required this.color,
+    required this.accentColor,
   });
 
   @override
@@ -618,31 +522,92 @@ class AnimatedBackgroundPainter extends CustomPainter {
       ..color = color
       ..style = PaintingStyle.fill;
 
-    // Draw animated circles
-    for (int i = 0; i < 3; i++) {
-      final radius = (20 + i * 15) * (1 + animationValue * 0.3);
+    final accentPaint = Paint()
+      ..color = accentColor
+      ..style = PaintingStyle.fill;
+
+    // Draw multiple layers of animated circles with different speeds
+    for (int i = 0; i < 5; i++) {
+      final radius = (15 + i * 12) * (1 + animationValue * 0.4);
       final offset = Offset(
-        size.width * (0.8 + i * 0.1),
-        size.height * (0.2 + i * 0.2) + (animationValue * 10),
+        size.width * (0.7 + i * 0.08) + (cos(animationValue * 2 * pi + i) * 20),
+        size.height * (0.15 + i * 0.15) + (sin(secondaryAnimationValue * 2 * pi + i) * 15),
       );
-      canvas.drawCircle(offset, radius, paint);
+      
+      // Use different paints for variety
+      canvas.drawCircle(offset, radius, i % 2 == 0 ? paint : accentPaint);
     }
 
-    // Draw animated path
-    final path = Path();
-    path.moveTo(0, size.height * 0.8);
+    // Draw animated sine waves
+    final wavePath = Path();
+    wavePath.moveTo(0, size.height * 0.7);
     
-    for (double x = 0; x <= size.width; x += 20) {
-      final y = size.height * 0.8 + 
-          (20 * sin((x / size.width * 2 * pi) + (animationValue * 2 * pi)));
-      path.lineTo(x, y);
+    for (double x = 0; x <= size.width; x += 5) {
+      final y1 = size.height * 0.7 + 
+          (15 * sin((x / size.width * 4 * pi) + (animationValue * 4 * pi)));
+      final y2 = size.height * 0.8 + 
+          (20 * cos((x / size.width * 3 * pi) + (secondaryAnimationValue * 3 * pi)));
+      
+      wavePath.lineTo(x, y1);
     }
     
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
+    wavePath.lineTo(size.width, size.height);
+    wavePath.lineTo(0, size.height);
+    wavePath.close();
     
-    canvas.drawPath(path, paint);
+    canvas.drawPath(wavePath, paint..color = color.withOpacity(0.1));
+
+    // Draw rotating geometric shapes
+    final center = Offset(size.width * 0.85, size.height * 0.3);
+    final rotationAngle = animationValue * 2 * pi;
+    
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotationAngle);
+    
+    // Draw diamond shape
+    final diamondPath = Path();
+    diamondPath.moveTo(0, -20);
+    diamondPath.lineTo(15, 0);
+    diamondPath.lineTo(0, 20);
+    diamondPath.lineTo(-15, 0);
+    diamondPath.close();
+    
+    canvas.drawPath(diamondPath, accentPaint);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// New painter for floating particles effect
+class FloatingParticlesPainter extends CustomPainter {
+  final double animationValue;
+  final Color particleColor;
+
+  FloatingParticlesPainter({
+    required this.animationValue,
+    required this.particleColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = particleColor
+      ..style = PaintingStyle.fill;
+
+    // Create floating particles
+    for (int i = 0; i < 8; i++) {
+      final x = (size.width * (0.1 + (i * 0.12))) + 
+               (sin(animationValue * 2 * pi + i * 0.5) * 30);
+      final y = (size.height * (0.2 + (i * 0.1))) + 
+               (cos(animationValue * 1.5 * pi + i * 0.7) * 20);
+      
+      final radius = (2 + (i % 3)) * (1 + sin(animationValue * 3 * pi + i) * 0.5);
+      
+      canvas.drawCircle(Offset(x, y), radius, paint);
+    }
   }
 
   @override
